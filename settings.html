@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="settings.pageTitle">شخصی‌سازی تست‌ها</title>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <style>
+    body { text-align: right; }
+    .section-title {
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 18px;
+    }
+    .hint { color: var(--muted); font-size: 13px; }
+    .divider { height: 1px; background: var(--border); margin: 12px 0; }
+  </style>
+</head>
+<body class="app-loading">
+  <div id="app">
+    <button class="back-btn" type="button" onclick="window.location='index.html'">←</button>
+    <h1 data-i18n="settings.pageTitle">شخصی‌سازی تست‌ها</h1>
+
+    <div class="panel" style="margin-bottom:14px;">
+      <div class="section-title">
+        <span data-i18n="settings.globalTitle">تنظیمات کلی (قبل از انتخاب تست)</span>
+        <span class="pill" data-i18n="settings.globalPill">زبان، تم، راهنما</span>
+      </div>
+      <div class="grid-two">
+        <div class="field">
+          <label for="global-language" data-i18n="settings.language">زبان</label>
+          <select id="global-language">
+            <option value="fa">فارسی</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="global-theme" data-i18n="settings.theme">تم برنامه</label>
+          <select id="global-theme">
+            <option value="dark" data-i18n="settings.themeDark">تاریک</option>
+            <option value="light" data-i18n="settings.themeLight">روشن</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="global-instructions" data-i18n="settings.instructions">راهنما</label>
+          <div>
+            <input type="checkbox" id="global-instructions" />
+            <label for="global-instructions" data-i18n="settings.instructionsLabel">نمایش توضیحات قبل از شروع تست</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:14px;">
+      <div class="section-title">
+        <span data-i18n="settings.testsTitle">شخصی‌سازی تست‌ها</span>
+        <span class="pill">DMS / PRM</span>
+      </div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label for="test-select" data-i18n="settings.whichTest">کدام تست را می‌خواهید تنظیم کنید؟</label>
+        <select id="test-select">
+          <option value="dms" data-i18n="settings.dms">DMS</option>
+          <option value="prm" data-i18n="settings.prm">PRM</option>
+        </select>
+      </div>
+
+      <div id="dms-settings" class="grid-two">
+        <div class="field">
+          <label for="dms-nchoices" data-i18n="settings.dmsChoices">تعداد گزینه‌ها (۱ تا ۶)</label>
+          <select id="dms-nchoices">
+            <option>1</option><option>2</option><option>3</option>
+            <option>4</option><option>5</option><option>6</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dms-sample-duration" data-i18n="settings.dmsSample">مدت نمایش الگو (میلی‌ثانیه)</label>
+          <input type="number" id="dms-sample-duration" min="300" max="15000">
+        </div>
+        <div class="field">
+          <label for="dms-subrect-count" data-i18n="settings.dmsSubRectCount">تعداد بخش‌های الگو (زیرمستطیل‌ها)</label>
+          <select id="dms-subrect-count">
+            <option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+          </select>
+          <div class="hint" data-i18n="settings.dmsSubRectHint">بخش‌های بیشتر، الگو را پیچیده‌تر و بار دیداری را سنگین‌تر می‌کند.</div>
+        </div>
+        <div class="field">
+          <label for="dms-shared-quadrants" data-i18n="settings.dmsSharedQuadrants">????? ??????? ????? (???? ????)</label>
+          <select id="dms-shared-quadrants">
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+          </select>
+          <div class="hint" data-i18n="settings.dmsSharedQuadrantsHint">??? ???? = ???? ?????? ?????? ???? ????? ??? ??? ????? ? ?? ????? ????? ??????.</div>
+        </div>
+        <div class="field">
+          <label for="dms-delay-list" data-i18n="settings.dmsDelay">فاصله بین الگو و گزینه‌ها (میلی‌ثانیه)</label>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <input type="text" id="dms-delay-list" placeholder="0, 4000, 12000" style="flex:1;">
+            <button type="button" id="dms-delay-default" class="task-btn" style="padding:6px 10px; font-size:13px;" data-i18n="settings.dmsDelayDefault">تاخیر رسمی</button>
+          </div>
+          <div class="hint" style="margin-top:4px;" data-i18n="settings.dmsDelayHint">برای چند delay، مقادیر را با کاما جدا کن (مثلاً 0, 4000, 12000). این مقدارها برای شرط‌های تاخیر استفاده می‌شوند.</div>
+        </div>
+        <div class="field">
+          <label for="dms-response" data-i18n="settings.dmsResponse">فرصت پاسخ‌دهی (میلی‌ثانیه؛ خالی = نامحدود)</label>
+          <input type="number" id="dms-response" min="500" max="30000" data-i18n-placeholder="common.unlimited" placeholder="نامحدود">
+        </div>
+        <div class="field">
+          <label for="dms-practice-trials" data-i18n="settings.dmsPracticeTrials">تعداد ترایال‌های تمرینی</label>
+          <input type="number" id="dms-practice-trials" min="1" max="200">
+        </div>
+        <div class="field">
+          <label for="dms-main-trials" data-i18n="settings.dmsMainTrials">تعداد ترایال‌های اصلی</label>
+          <input type="number" id="dms-main-trials" min="1" max="200">
+        </div>
+      </div>
+
+      <div id="prm-settings" class="grid-two hidden">
+        <div class="field">
+          <label for="prm-nchoices" data-i18n="settings.prmChoices">تعداد گزینه‌ها (۲ تا ۴)</label>
+          <select id="prm-nchoices">
+            <option>2</option><option>3</option><option>4</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="prm-sample-duration" data-i18n="settings.prmSample">مدت نمایش تصویر (میلی‌ثانیه)</label>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <input type="number" id="prm-sample-duration" min="300" max="15000" style="flex:1;">
+            <button type="button" id="prm-sample-default" class="task-btn" style="padding:6px 10px; font-size:13px;" data-i18n="settings.prmSampleDefault">پیش‌فرض</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="prm-response" data-i18n="settings.prmResponse">فرصت پاسخ‌دهی (میلی‌ثانیه؛ خالی = نامحدود)</label>
+          <input type="number" id="prm-response" min="500" max="30000" data-i18n-placeholder="common.unlimited" placeholder="نامحدود">
+        </div>
+        <div class="field">
+          <label for="prm-practice-trials" data-i18n="settings.prmPracticeTrials">تعداد ترایال‌های تمرینی</label>
+          <input type="number" id="prm-practice-trials" min="1" max="200">
+        </div>
+        <div class="field">
+          <label for="prm-main-trials" data-i18n="settings.prmMainTrials">تعداد ترایال‌های اصلی</label>
+          <input type="number" id="prm-main-trials" min="1" max="200">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div style="display:flex; justify-content: space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+        <button id="save-settings" class="task-btn" style="width:auto; padding:10px 16px;" data-i18n="settings.saveBtn">ذخیره شخصی‌سازی</button>
+        <span id="save-status" class="hint" data-i18n="common.savedHint">تنظیمات به‌صورت محلی ذخیره می‌شود.</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">
+        <span data-i18n="settings.previewTitle">پیش‌نمایش تنظیمات</span>
+        <span class="pill" data-i18n="settings.previewLabel">اعمال روی تست‌ها</span>
+      </div>
+      <p class="hint" id="settings-preview"></p>
+    </div>
+  </div>
+
+  <script src="assets/js/settings.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      let settings = AppSettings.load();
+      AppSettings.applyThemeAndLanguage(settings);
+      I18N.translatePage(settings.global.language);
+
+      const el = (id) => document.getElementById(id);
+      const fields = {
+        language: el("global-language"),
+        theme: el("global-theme"),
+        instructions: el("global-instructions"),
+        testSelect: el("test-select"),
+        dms: {
+          nChoices: el("dms-nchoices"),
+          sample: el("dms-sample-duration"),
+          subRectCount: el("dms-subrect-count"),
+          sharedQuadrants: el("dms-shared-quadrants"),
+          delayList: el("dms-delay-list"),
+          response: el("dms-response"),
+          practiceTrials: el("dms-practice-trials"),
+          mainTrials: el("dms-main-trials"),
+        },
+        prm: {
+          nChoices: el("prm-nchoices"),
+          sample: el("prm-sample-duration"),
+          response: el("prm-response"),
+          practiceTrials: el("prm-practice-trials"),
+          mainTrials: el("prm-main-trials"),
+        },
+        status: el("save-status"),
+        preview: el("settings-preview"),
+        dmsBlock: el("dms-settings"),
+        prmBlock: el("prm-settings"),
+      };
+      const delayDefaultBtn = el("dms-delay-default");
+      const prmSampleDefaultBtn = el("prm-sample-default");
+
+      const rebuildSharedQuadrantOptions = () => {
+        const max = Math.max(1, (Number(fields.dms.subRectCount.value) || 2) - 1);
+        const select = fields.dms.sharedQuadrants;
+        const current = Number(select.value) || 1;
+        select.innerHTML = "";
+        for (let i = 1; i <= max; i++) {
+          const opt = document.createElement("option");
+          opt.value = String(i);
+          opt.textContent = String(i);
+          select.appendChild(opt);
+        }
+        select.value = String(Math.min(Math.max(1, current), max));
+      };
+
+      const formatDelayList = (list) =>
+        Array.isArray(list) && list.length ? list.join(", ") : "";
+      const parseDelayList = (value) =>
+        value
+          .split(/[,\s]+/)
+          .map((token) => Number(token))
+          .filter((n) => Number.isFinite(n));
+
+      const applyDmsDefaultDelays = () => {
+        fields.dms.delayList.value = formatDelayList(
+          AppSettings.defaults.dms.delayMsList
+        );
+        save();
+      };
+
+      const applyPrmDefaultSample = () => {
+        fields.prm.sample.value = AppSettings.defaults.prm.sampleDurationMs;
+        save();
+      };
+
+      const fillForm = () => {
+        fields.language.value = settings.global.language;
+        fields.theme.value = settings.global.theme;
+        fields.instructions.checked = !!settings.global.showInstructions;
+
+        fields.dms.nChoices.value = settings.dms.nChoices;
+        fields.dms.sample.value = settings.dms.sampleDurationMs;
+        fields.dms.subRectCount.value = settings.dms.subRectCount;
+        rebuildSharedQuadrantOptions();
+        fields.dms.delayList.value =
+          formatDelayList(settings.dms.delayMsList) ||
+          (settings.dms.delayMs != null ? `${settings.dms.delayMs}` : "");
+        fields.dms.sharedQuadrants.value = Math.min(
+          Math.max(1, settings.dms.sharedQuadrants ?? 1),
+          Math.max(1, (settings.dms.subRectCount || 2) - 1)
+        );
+        fields.dms.response.value = settings.dms.responseDeadlineMs ?? "";
+        fields.dms.practiceTrials.value = settings.dms.practiceTrialsTotal;
+        fields.dms.mainTrials.value = settings.dms.mainTrialsTotal;
+
+        fields.prm.nChoices.value = settings.prm.nChoices;
+        fields.prm.sample.value = settings.prm.sampleDurationMs;
+        fields.prm.response.value = settings.prm.responseDeadlineMs ?? "";
+        fields.prm.practiceTrials.value = settings.prm.practiceTrialsTotal;
+        fields.prm.mainTrials.value = settings.prm.mainTrialsTotal;
+
+        updatePreview();
+      };
+
+      const readForm = () => {
+        const form = {
+          global: {
+            language: fields.language.value,
+            theme: fields.theme.value,
+            showInstructions: fields.instructions.checked,
+          },
+          dms: {
+            nChoices: Number(fields.dms.nChoices.value),
+            sampleDurationMs: Number(fields.dms.sample.value),
+            subRectCount: Number(fields.dms.subRectCount.value),
+            sharedQuadrants: Number(fields.dms.sharedQuadrants.value),
+            responseDeadlineMs:
+              fields.dms.response.value === ""
+                ? null
+                : Number(fields.dms.response.value),
+            practiceTrialsTotal: Number(fields.dms.practiceTrials.value),
+            mainTrialsTotal: Number(fields.dms.mainTrials.value),
+          },
+          prm: {
+            nChoices: Number(fields.prm.nChoices.value),
+            sampleDurationMs: Number(fields.prm.sample.value),
+            responseDeadlineMs:
+              fields.prm.response.value === ""
+                ? null
+                : Number(fields.prm.response.value),
+            practiceTrialsTotal: Number(fields.prm.practiceTrials.value),
+            mainTrialsTotal: Number(fields.prm.mainTrials.value),
+          },
+        };
+        const delayInput = parseDelayList(fields.dms.delayList.value);
+        if (delayInput.length) {
+          form.dms.delayMsList = delayInput;
+        }
+        return form;
+      };
+
+      const formatMs = (value) =>
+        value == null ? I18N.t("settings.previewUnlimited") : `${value} ms`;
+
+      const updatePreview = () => {
+        const delayList = Array.isArray(settings.dms.delayMsList)
+          ? settings.dms.delayMsList
+          : [];
+        const delayDisplay = delayList.length
+          ? `${delayList.join(" / ")} ms`
+          : formatMs(settings.dms.delayMs);
+        const dmsSummary = I18N.t("settings.previewDmsSummary", {
+          choices: settings.dms.nChoices,
+          sample: settings.dms.sampleDurationMs,
+          delay: delayDisplay,
+          response: formatMs(settings.dms.responseDeadlineMs),
+          practice: settings.dms.practiceTrialsTotal ?? "?",
+          main: settings.dms.mainTrialsTotal ?? "?",
+        });
+        const prmSummary = I18N.t("settings.previewPrmSummary", {
+          choices: settings.prm.nChoices,
+          sample: settings.prm.sampleDurationMs,
+          response: formatMs(settings.prm.responseDeadlineMs),
+          practice: settings.prm.practiceTrialsTotal ?? "?",
+          main: settings.prm.mainTrialsTotal ?? "?",
+        });
+        fields.preview.replaceChildren(
+          document.createTextNode(I18N.t("settings.previewHeading")),
+          document.createElement("br"),
+          document.createTextNode(dmsSummary),
+          document.createElement("br"),
+          document.createTextNode(prmSummary)
+        );
+      };
+
+      const save = () => {
+        settings = AppSettings.save(readForm());
+        AppSettings.applyThemeAndLanguage(settings);
+        I18N.translatePage(settings.global.language);
+        fields.status.textContent = I18N.t("common.saved");
+        updatePreview();
+        setTimeout(() => (fields.status.textContent = I18N.t("common.savedHint")), 2000);
+      };
+
+      fields.testSelect.addEventListener("change", () => {
+        const target = fields.testSelect.value;
+        fields.dmsBlock.classList.toggle("hidden", target !== "dms");
+        fields.prmBlock.classList.toggle("hidden", target !== "prm");
+      });
+
+      ["language", "theme"].forEach((k) => fields[k].addEventListener("change", save));
+      fields.instructions.addEventListener("change", save);
+
+      ["nChoices", "sample", "subRectCount", "sharedQuadrants", "response", "practiceTrials", "mainTrials"].forEach((key) =>
+        fields.dms[key].addEventListener("change", save)
+      );
+      fields.dms.subRectCount.addEventListener("change", () => {
+        rebuildSharedQuadrantOptions();
+        save();
+      });
+      fields.dms.delayList.addEventListener("change", save);
+      ["nChoices", "sample", "response", "practiceTrials", "mainTrials"].forEach((key) =>
+        fields.prm[key].addEventListener("change", save)
+      );
+      delayDefaultBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        applyDmsDefaultDelays();
+      });
+      prmSampleDefaultBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        applyPrmDefaultSample();
+      });
+
+      el("save-settings").addEventListener("click", (e) => { e.preventDefault(); save(); });
+
+      fillForm();
+    });
+  </script>
+</body>
+</html>

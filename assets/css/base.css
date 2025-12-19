@@ -1,0 +1,257 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #111;
+  --surface: #181818;
+  --text: #f5f5f5;
+  --muted: #b9b9b9;
+  --primary: #1976d2;
+  --success: #388e3c;
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+body[data-theme="light"] {
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --text: #1f2933;
+  --muted: #4b5563;
+  --primary: #1d4ed8;
+  --success: #2c974b;
+  --border: rgba(31, 41, 51, 0.12);
+  --shadow: 0 10px 30px rgba(31, 41, 51, 0.12);
+}
+
+body {
+  font-family: 'Rubik', 'Segoe UI', Tahoma, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  direction: rtl;
+  text-align: center;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+body.app-loading #app {
+  opacity: 0;
+}
+
+/* LTR adjustments when language is English */
+body[dir="ltr"] {
+  direction: ltr;
+  text-align: left;
+}
+
+body[dir="ltr"] #app {
+  direction: ltr;
+  text-align: left;
+}
+
+body[dir="ltr"] .field {
+  text-align: left;
+}
+
+body[dir="ltr"] h1,
+body[dir="ltr"] #status,
+body[dir="ltr"] #phase-label {
+  text-align: left;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: clamp(26px, 4vw, 38px);
+}
+
+/* Shared styles between PRM and DMS */
+#app {
+  max-width: 800px;
+  margin: 40px auto;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+
+#stimulus-area {
+  margin-top: 24px;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+#status {
+  font-size: 17px;
+  margin-bottom: 10px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+#phase-label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.sample-box, .choice-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sample-box {
+  width: 225px;
+  height: 163px;
+  border-radius: 18px;
+  background: transparent;
+}
+
+.choice-box {
+  width: 175px;
+  height: 125px;
+  border-radius: 18px;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.choice-box:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(255,255,255,0.35);
+}
+
+#controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0 6px;
+}
+
+button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+#start-btn {
+  background: var(--primary);
+  color: white;
+}
+
+#start-btn:disabled {
+  background: #555;
+}
+
+#download-btn {
+  background: var(--success);
+  color: white;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.fixation {
+  font-size: 48px;
+}
+
+.back-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255,255,255,0.1);
+  color: #f5f5f5;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 10px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.18);
+  transform: translateY(-1px);
+}
+
+/* ---------- Customization page helpers ---------- */
+.panel {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  align-items: start;
+  grid-auto-rows: minmax(0, auto);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: right;
+  align-self: start;
+}
+
+.field label {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.field input,
+.field select {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+#instructions-screen {
+  text-align: right;
+}
+
+body[dir="ltr"] #instructions-screen {
+  direction: ltr;
+  text-align: left !important;
+}
+
+body[dir="ltr"] #instructions-screen h2,
+body[dir="ltr"] #instructions-screen h3,
+body[dir="ltr"] #instructions-screen p {
+  text-align: left !important;
+}

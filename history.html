@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="history.title">سوابق آزمون‌ها</title>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <style>
+    body { text-align: right; }
+    .history-list { display: flex; flex-direction: column; gap: 12px; }
+    .history-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+    .history-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 14px; color: var(--muted); }
+    .history-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .history-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { padding: 4px 10px; border-radius: 12px; background: rgba(255,255,255,0.08); font-size: 12px; }
+    .summary-box { margin-top: 8px; padding: 8px; border-radius: 10px; background: rgba(0,0,0,0.15); display: none; }
+    .summary-box.visible { display: block; }
+  </style>
+</head>
+<body class="app-loading">
+  <div id="app">
+    <button class="back-btn" type="button" onclick="window.location='index.html'" data-i18n="history.backBtn"></button>
+    <h1 data-i18n="history.title"></h1>
+
+    <div class="panel">
+      <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span data-i18n="history.sectionTitle"></span>
+        <span class="pill" data-i18n="history.storageLabel"></span>
+      </div>
+      <div id="history-empty" class="hint" data-i18n="history.emptyHint"></div>
+      <div id="history-list" class="history-list"></div>
+    </div>
+  </div>
+  <script src="assets/js/settings.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="assets/js/csv_utils.js"></script>
+  <script src="assets/js/prm_zip_helper.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const settings = AppSettings.load();
+      AppSettings.applyThemeAndLanguage(settings);
+      I18N.translatePage(settings.global.language);
+
+      const listEl = document.getElementById("history-list");
+      const emptyEl = document.getElementById("history-empty");
+      const history = (window.TestHistory?.load?.() || []).slice();
+      const locale = settings.global.language === "en" ? "en" : "fa-IR";
+      const t = (key, params) => I18N.t(key, params);
+
+      const formatDate = (iso) => {
+        if (!iso) return "-";
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return "-";
+        return d.toLocaleString(locale);
+      };
+
+      const sanitizeNumber = (value) => {
+        if (value == null || value === "") return "-";
+        const num = Number(value);
+        if (!Number.isFinite(num)) return "-";
+        return Math.round(num);
+      };
+
+      const makeSummaryText = (summary) => {
+        if (!summary || typeof summary !== "object") return t("history.summaryMissing");
+        const total =
+          summary.total ??
+          summary.total_test_trials ??
+          summary.trials ??
+          0;
+        const correct =
+          summary.nCorrect ??
+          summary.correct ??
+          summary.correct_answers ??
+          0;
+        const acc =
+          summary.accuracy ??
+          summary.acc ??
+          summary.accuracy_pct ??
+          0;
+        const meanRt =
+          summary.meanRT ??
+          summary.meanRtCorrectMs ??
+          summary.mean_rt_correct_ms ??
+          summary.mean_response_ms ??
+          0;
+        const timeouts =
+          summary.timeouts ??
+          summary.timeoutCount ??
+          summary.timeout_count ??
+          0;
+        return t("history.summaryLine", {
+          total: sanitizeNumber(total),
+          correct: sanitizeNumber(correct),
+          acc: sanitizeNumber(acc),
+          meanRt: sanitizeNumber(meanRt),
+          timeouts: sanitizeNumber(timeouts),
+        });
+      };
+
+      const buildBaseName = (row, idx) => {
+        const safeTest =
+          (window.CSV_UTILS?.sanitizeFilenameSegment?.(row.testType) ||
+            row.testType ||
+            "test") + "";
+        const safePid =
+          window.CSV_UTILS?.sanitizeFilenameSegment?.(row.participantId) ||
+          row.participantId ||
+          "p";
+        const safeSession =
+          window.CSV_UTILS?.sanitizeFilenameSegment?.(row.sessionId) ||
+          row.sessionId ||
+          `run${idx + 1}`;
+        return `${safeTest.toUpperCase()}_Export_${safePid}_${safeSession}`;
+      };
+
+      const downloadZip = (row, idx) => {
+        const machineCsv = row.csvMachine || row.csvText || "";
+        const humanBase64 = row.humanBase64 || "";
+        if (!machineCsv && !humanBase64) return;
+        const baseName = buildBaseName(row, idx);
+        const zip = new JSZip();
+        if (humanBase64 && window.CSV_UTILS?.base64ToUint8) {
+          const bytes = CSV_UTILS.base64ToUint8(humanBase64);
+          const humanName = `${row.testType?.toUpperCase() || "TEST"}_Report_${baseName.replace("Export_", "")}.xlsx`;
+          zip.file(humanName, bytes);
+        }
+        if (machineCsv) {
+          const machineName = `${row.testType?.toUpperCase() || "TEST"}_Data_${baseName.replace("Export_", "")}.csv`;
+          zip.file(machineName, CSV_UTILS.addBom ? CSV_UTILS.addBom(machineCsv) : machineCsv);
+        }
+        zip.generateAsync({ type: "blob" }).then((blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${baseName}.zip`;
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+      };
+
+      const formatValue = (value, fallback = "-") =>
+        value == null || value === "" ? fallback : value;
+
+      const testLabelMap = {
+        dms: t("history.testNameDms"),
+        prm: t("history.testNamePrm"),
+      };
+      const modeLabelMap = {
+        main: t("history.modeMain"),
+        practice: t("history.modePractice"),
+      };
+
+      if (!history.length) {
+        emptyEl.style.display = "block";
+        return;
+      }
+      emptyEl.style.display = "none";
+
+      const appendMetaField = (metaEl, labelKey, value) => {
+        const span = document.createElement("span");
+        span.textContent = `${t(labelKey)}: ${value}`;
+        metaEl.appendChild(span);
+      };
+
+      history.forEach((row, idx) => {
+        const card = document.createElement("div");
+        card.className = "history-card";
+
+        const title = document.createElement("div");
+        title.className = "history-title";
+        const testType = (row.testType || "").toLowerCase();
+        const testLabel =
+          testLabelMap[testType] || (row.testType ? row.testType.toUpperCase() : "???");
+        const mode = (row.mode || "main").toLowerCase();
+        const modeLabel = modeLabelMap[mode] || row.mode || "-";
+        const titleStrong = document.createElement("strong");
+        titleStrong.textContent = testLabel;
+        const modePill = document.createElement("span");
+        modePill.className = "pill";
+        modePill.textContent = modeLabel;
+        title.replaceChildren(titleStrong, modePill);
+        card.appendChild(title);
+
+        const meta = document.createElement("div");
+        meta.className = "history-meta";
+        appendMetaField(meta, "history.participantId", formatValue(row.participantId));
+        appendMetaField(meta, "history.recordedAt", formatDate(row.timestampIso));
+        card.appendChild(meta);
+
+        const summaryBox = document.createElement("div");
+        summaryBox.className = "summary-box";
+        const summaryText =
+          typeof row.summaryDetail === "string" && row.summaryDetail
+            ? row.summaryDetail
+            : makeSummaryText(row.summary);
+        summaryBox.textContent = summaryText;
+        card.appendChild(summaryBox);
+
+        const actions = document.createElement("div");
+        actions.className = "history-actions";
+
+        const dlBtn = document.createElement("button");
+        dlBtn.className = "task-btn";
+        dlBtn.textContent = t("history.downloadCsv");
+        dlBtn.addEventListener("click", () => downloadZip(row, idx));
+
+        const summaryBtn = document.createElement("button");
+        summaryBtn.className = "task-btn secondary";
+        summaryBtn.textContent = t("history.summaryToggle");
+        summaryBtn.addEventListener("click", () => {
+          summaryBox.classList.toggle("visible");
+        });
+
+        actions.appendChild(dlBtn);
+        actions.appendChild(summaryBtn);
+        card.appendChild(actions);
+
+        listEl.appendChild(card);
+      });
+    });
+  </script>
+
+</body>
+</html>

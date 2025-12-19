@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <style>body.app-loading #app { opacity: 0; }</style>
+  <title data-i18n="dms.title">تطبیق با تأخیر (DMS)</title>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <style>
+    #instructions-screen {
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      text-align: right;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    #instructions-screen h2 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+
+    .instruction-block {
+      margin-bottom: 12px;
+    }
+
+    .instruction-block h3 {
+      margin: 0;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .instruction-block:last-child {
+      margin-bottom: 0;
+    }
+    #instruction-sample {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+    }
+    #menu-screen {
+      margin: 24px auto;
+      padding: 24px;
+      max-width: 500px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+    .menu-hint {
+      text-align: center;
+      margin-bottom: 18px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .menu-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .menu-actions button {
+      font-size: 16px;
+      min-width: 150px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #1e88e5, #42a5f5);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(10, 50, 100, 0.35);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .menu-actions button.task-btn-secondary {
+      background: linear-gradient(135deg, #43a047, #66bb6a);
+    }
+    .menu-actions button.task-btn-primary {
+      background: linear-gradient(135deg, #e53935, #ef5350);
+    }
+    .menu-actions button:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+    .instruction-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body class="app-loading">
+  <div id="app">
+    <button id="back-btn" class="back-btn" type="button" data-i18n="common.back">بازگشت</button>
+    <h1 data-i18n="dms.title">تطابق تأخیری DMS</h1>
+
+    <div id="status" data-i18n="dms.statusReady">برای شروع دکمه شروع را بزنید.</div>
+    <div id="phase-label"></div>
+
+    <div id="menu-screen">
+      <p class="menu-hint" data-i18n="dms.menuHint">برای شروع گزینه‌ای را انتخاب کنید.</p>
+      <div class="menu-actions">
+        <button id="menu-instructions-btn" class="task-btn" data-i18n="dms.menuInstructions">نمایش توضیحات</button>
+        <button id="menu-practice-btn" class="task-btn task-btn-secondary" data-i18n="dms.menuPractice">تمرین</button>
+        <button id="menu-start-btn" class="task-btn task-btn-primary" data-i18n="dms.menuStart">شروع تست اصلی</button>
+      </div>
+    </div>
+
+    <div id="controls">
+      <button id="download-btn" disabled data-i18n="dms.downloadBtn">O_OU+U,U^O_ CSV</button>
+    </div>
+
+    
+
+<div id="instructions-screen" class="hidden">
+      <h2 data-i18n="dms.instructionsTitle">DMS instructions</h2>
+      <div class="instruction-block">
+        <h3 data-i18n="dms.instructionsSimpleTitle">Quick summary</h3>
+        <p data-i18n="dms.instructionsSimple">
+          In this task, a sample visual pattern is briefly presented. After a short delay (or simultaneously depending on the condition), several options appear. Your task is to choose the option that exactly matches the previously shown sample pattern.
+        </p>
+      </div>
+      <div class="instruction-block">
+        <h3 data-i18n="dms.instructionsFormalTitle">Detailed guide</h3>
+        <p data-i18n="dms.instructionsFormal">
+          The DMS task is a standardized neuropsychological assessment measuring visual working memory and delayed pattern matching. In each trial, a target pattern is presented, followed by a delay period or simultaneous presentation of choices depending on the condition. Participants must select the option that matches the sample in shape, configuration, and structural layout. The task includes both practice and main phases, with accuracy and reaction time recorded separately to evaluate recognition performance under varying memory demands.
+        </p>
+      </div>
+      <div id="instruction-sample"></div>
+      <div class="instruction-actions">
+        <button id="instructions-practice-btn" class="task-btn task-btn-secondary" data-i18n="dms.instructionsPracticeBtn">تمرین</button>
+        <button id="instructions-start-btn" class="task-btn task-btn-primary" data-i18n="dms.instructionsStartBtn">شروع تست اصلی</button>
+      </div>
+    </div>
+
+    <div id="stimulus-area"></div>
+  </div>
+
+  <script src="../assets/js/settings.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="../assets/js/csv_utils.js"></script>
+  <script src="../assets/js/dms_csv.js"></script>
+  <script src="../assets/js/dms_report.js"></script>
+  <script src="pattern.js"></script>
+  <script src="dms.js"></script>
+</body>
+</html>
+
+
+
+

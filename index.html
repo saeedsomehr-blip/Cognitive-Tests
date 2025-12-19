@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="index.title">مجموعه آزمون‌های شناختی</title>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <style>
+    body { text-align: right; }
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .test-card {
+      padding: 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 220px;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .card-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      text-align: right;
+    }
+    body[dir="ltr"] { text-align: left; }
+    body[dir="ltr"] .card-desc { text-align: left; }
+    .task-btn {
+      padding: 14px 18px;
+      background: var(--primary);
+      border-radius: 12px;
+      font-size: 17px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: white;
+      transition: 0.2s;
+      font-weight: 700;
+    }
+    .task-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+    .task-btn.secondary { background: #444; }
+    .task-btn.full { width: 100%; }
+    .pill-ghost { background: rgba(255,255,255,0.06); color: var(--muted); padding: 6px 10px; border-radius: 12px; }
+    .hint { color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+
+<body class="app-loading">
+  <div id="app">
+    <h1 data-i18n="index.title" style="text-align:center;">مجموعه تست‌های شناختی</h1>
+
+    <div class="panel">
+      <div class="section-title" style="font-weight:800; letter-spacing:0.2px; font-size:20px;" data-i18n="index.runTitle">اجرای تست</div>
+      <div class="test-grid">
+        <article class="test-card">
+          <div class="card-meta">
+            <span class="pill-ghost" data-i18n="index.prmBadge">Pattern Recognition Memory</span>
+            <a class="task-btn" href="prm/prm.html" data-i18n="index.startPrm">Start PRM</a>
+          </div>
+          <p class="card-desc" data-i18n="index.prmBlurb">
+            در PRM ابتدا الگوها را مرور می‌کنید و سپس جفت گزینه‌ها نمایش داده می‌شود؛ هر بار تصویری را انتخاب کنید که قبلاً دیده‌اید.
+          </p>
+          <div class="trial-figure" aria-hidden="true" style="background:linear-gradient(145deg,#0f172a,#0b1020); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:10px;">
+            <img src="prm/prm.png" alt="PRM preview" style="width:100%; height:auto; display:block; border-radius:8px;">
+          </div>
+        </article>
+
+        <article class="test-card">
+          <div class="card-meta">
+            <span class="pill-ghost" data-i18n="index.dmsBadge">Delayed Matching to Sample</span>
+            <a class="task-btn" href="dms/dms.html" data-i18n="index.startDms">Start DMS</a>
+          </div>
+          <p class="card-desc" data-i18n="index.dmsBlurb">
+            در آزمون DMS یک الگوی نمونه کوتاه می‌بینید و پس از یک مکث کوتاه، گزینه‌ها ظاهر می‌شوند؛ گزینه‌ای را انتخاب کنید که دقیقاً با الگوی اولیه یکسان است.
+          </p>
+          <div class="trial-figure" aria-hidden="true" style="background:linear-gradient(145deg,#0f172a,#0b1020); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:10px;">
+            <img src="dms/dms.png" alt="DMS preview" style="width:100%; height:auto; display:block; border-radius:8px;">
+          </div>
+        </article>
+
+        <article class="test-card">
+          <div class="card-meta">
+            <a class="task-btn secondary full" href="settings.html" data-i18n="index.goSettings">شخصی‌سازی</a>
+          </div>
+          <p class="card-desc" data-i18n="index.settingsBlurb">
+            زمان‌ها، تعداد گزینه‌ها و حالت تمرین/اصلی هر آزمون را اینجا تنظیم کنید تا برای اجرای بعدی ذخیره شود.
+          </p>
+        </article>
+
+        <article class="test-card">
+          <div class="card-meta">
+            <a class="task-btn secondary full" href="history.html" data-i18n="index.historyBtn">سابقه تست‌ها</a>
+          </div>
+          <p class="card-desc" data-i18n="index.historyBlurb">
+            همه آزمون‌های انجام‌شده به همراه شماره آزمودنی، خلاصه و لینک دانلود CSV هر جلسه را اینجا ببینید. داده‌ها به‌صورت محلی در مرورگر شما ذخیره می‌شوند.
+          </p>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/settings.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const settings = AppSettings.load();
+      AppSettings.applyThemeAndLanguage(settings);
+      I18N.translatePage(settings.global.language);
+    });
+  </script>
+</body>
+</html>

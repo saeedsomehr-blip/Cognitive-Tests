@@ -1,0 +1,471 @@
+﻿<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <title>PRM Library Builder</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      direction: rtl;
+      background: #111;
+      color: #f5f5f5;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    #app {
+      margin: 24px auto;
+      max-width: 1000px;
+      background: #181818;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.7);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    .row {
+      margin: 8px 0;
+    }
+
+    label {
+      margin: 0 4px;
+    }
+
+    input[type="number"] {
+      width: 70px;
+      padding: 4px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #222;
+      color: #f5f5f5;
+      text-align: center;
+    }
+
+    button {
+      padding: 8px 16px;
+      margin: 4px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    #generate-btn {
+      background: #1976d2;
+      color: #fff;
+    }
+
+    #download-btn {
+      background: #388e3c;
+      color: #fff;
+    }
+
+    #download-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin: 8px 0 4px;
+      min-height: 20px;
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    #preview-area {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+  max-height: 600px;
+  overflow-y: scroll;
+  padding-right: 10px;
+    }
+
+    .preview-item {
+      background: #000;
+      border-radius: 10px;
+      border: 2px solid #555;
+      padding: 6px;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 140px;
+      position: relative;
+      cursor: pointer;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .preview-item.selected {
+      border-color: #43a047;
+      box-shadow: 0 0 0 2px #2e7d32;
+      transform: translateY(-2px);
+    }
+
+    .selection-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: #43a047;
+      color: #0b0b0b;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .preview-meta {
+      margin-top: 4px;
+      opacity: 0.8;
+    }
+
+    .counter-box {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: #202020;
+      font-size: 12px;
+      margin: 0 4px;
+    }
+
+    #json-output {
+      width: 100%;
+      height: 160px;
+      background: #111;
+      color: #ccc;
+      border-radius: 8px;
+      border: 1px solid #444;
+      font-family: monospace;
+      font-size: 11px;
+      padding: 8px;
+      box-sizing: border-box;
+      direction: ltr;
+      text-align: left;
+      margin-top: 12px;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    .selection-hint {
+      font-size: 12px;
+      opacity: 0.8;
+      margin: 6px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>سازندهٔ کتابخانهٔ PRM (prm_library.json)</h1>
+
+    <p style="font-size: 13px; line-height: 1.8;">
+      این ابزار از <b>PRMSegmentPatternGenerator</b> استفاده می‌کند و یک مجموعهٔ ثابت از محرک‌های PRM می‌سازد.<br>
+      پس از ساخت، می‌توانی فایل <code>prm_library.json</code> را دانلود کنی و در تست اصلی از آن استفاده کنی.
+    </p>
+
+    <div class="row">
+      <label>تعداد پترن آسان (difficulty = 1):</label>
+      <input id="easy-count" type="number" value="20" min="0" max="200" />
+    </div>
+    <div class="row">
+      <label>تعداد پترن متوسط (difficulty = 2):</label>
+      <input id="medium-count" type="number" value="20" min="0" max="200" />
+    </div>
+    <div class="row">
+      <label>تعداد پترن سخت (difficulty = 3):</label>
+      <input id="hard-count" type="number" value="20" min="0" max="200" />
+    </div>
+
+    <div class="row">
+      <button id="generate-btn">ساخت کتابخانه</button>
+      <button id="download-btn" disabled>دانلود prm_library.json</button>
+      <button id="apply-selection-btn" disabled>اعمال انتخاب‌ها</button>
+    </div>
+
+    <div id="status"></div>
+
+    <div class="row">
+      <span class="counter-box">تعداد ساخته‌شده: <span id="total-count">0</span></span>
+      <span class="counter-box">منتخب: <span id="selected-count">0</span></span>
+      <span class="counter-box">آسان: <span id="easy-made">0</span></span>
+      <span class="counter-box">متوسط: <span id="medium-made">0</span></span>
+      <span class="counter-box">سخت: <span id="hard-made">0</span></span>
+    </div>
+
+    <div class="selection-hint">روی هر شکل کلیک کن تا انتخاب یا لغو شود. «اعمال انتخاب‌ها» بقیه را حذف می‌کند و دانلود فقط الگوهای منتخب را می‌دهد.</div>
+
+    <div id="preview-area"></div>
+
+    <textarea id="json-output" readonly placeholder="خروجی JSON اینجا نمایش داده می‌شود..."></textarea>
+  </div>
+
+  <!-- ژنراتور و رندر اصلی PRM -->
+  <script src="prm_segments.js"></script>
+
+  <script>
+    (function() {
+      let currentLibrary = [];
+      let selectedIds = new Set();
+
+      const statusEl = document.getElementById("status");
+      const previewArea = document.getElementById("preview-area");
+      const jsonOutputEl = document.getElementById("json-output");
+
+      const easyInput = document.getElementById("easy-count");
+      const mediumInput = document.getElementById("medium-count");
+      const hardInput = document.getElementById("hard-count");
+
+      const totalCountEl = document.getElementById("total-count");
+      const easyMadeEl = document.getElementById("easy-made");
+      const mediumMadeEl = document.getElementById("medium-made");
+      const hardMadeEl = document.getElementById("hard-made");
+      const selectedCountEl = document.getElementById("selected-count");
+
+      const genBtn = document.getElementById("generate-btn");
+      const dlBtn = document.getElementById("download-btn");
+      const applySelectionBtn = document.getElementById("apply-selection-btn");
+
+      const generator = new PRMSegmentPatternGenerator();
+      const renderer = new PRMSegmentRenderer();
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+      }
+
+      function clampInt(val, min, max, fallback) {
+        const n = Number(val);
+        if (!Number.isFinite(n)) return fallback;
+        return Math.min(Math.max(Math.round(n), min), max);
+      }
+
+      function getSelectedLibrary() {
+        if (!selectedIds.size) return [];
+        return currentLibrary.filter((p) => selectedIds.has(p.id));
+      }
+
+      function updateCountersFromSelection() {
+        const selected = getSelectedLibrary();
+        totalCountEl.textContent = currentLibrary.length;
+        selectedCountEl.textContent = selected.length;
+
+        let easy = 0;
+        let medium = 0;
+        let hard = 0;
+        selected.forEach((p) => {
+          const d = p.difficulty || 2;
+          if (d === 1) easy++;
+          else if (d === 2) medium++;
+          else if (d === 3) hard++;
+        });
+
+        easyMadeEl.textContent = easy;
+        mediumMadeEl.textContent = medium;
+        hardMadeEl.textContent = hard;
+
+        if (!currentLibrary.length) {
+          dlBtn.disabled = true;
+          applySelectionBtn.disabled = true;
+        } else {
+          applySelectionBtn.disabled = false;
+          dlBtn.disabled = selected.length === 0;
+        }
+      }
+
+      function showJsonSnippet(list = getSelectedLibrary()) {
+        if (!list.length) {
+          jsonOutputEl.value = "";
+          return;
+        }
+        const snippet = JSON.stringify(list.slice(0, 5), null, 2);
+        jsonOutputEl.value = snippet + (list.length > 5 ? "\\n..." : "");
+      }
+
+      function refreshOutputs(options = {}) {
+        updateCountersFromSelection();
+        showJsonSnippet();
+        if (options.skipStatus) return;
+
+        if (!currentLibrary.length) {
+          setStatus("کتابخانه خالی است. اول الگو بساز.");
+          return;
+        }
+
+        const selected = getSelectedLibrary();
+        if (!selected.length) {
+          setStatus("چیزی انتخاب نشده. روی پیش‌نمایش‌ها کلیک کن.");
+        } else {
+          setStatus(`${selected.length} از ${currentLibrary.length} پترن انتخاب شده است.`);
+        }
+      }
+
+      function generateLibrary() {
+        const nEasy = clampInt(easyInput.value, 0, 500, 20);
+        const nMedium = clampInt(mediumInput.value, 0, 500, 20);
+        const nHard = clampInt(hardInput.value, 0, 500, 20);
+
+        const totalTarget = nEasy + nMedium + nHard;
+        if (totalTarget <= 0) {
+          setStatus("تعداد کل باید بزرگ‌تر از صفر باشد.");
+          return;
+        }
+
+        currentLibrary = [];
+        selectedIds = new Set();
+        previewArea.innerHTML = "";
+        jsonOutputEl.value = "";
+        refreshOutputs({ skipStatus: true });
+
+        let easyMade = 0;
+        let mediumMade = 0;
+        let hardMade = 0;
+
+        const maxTries = totalTarget * 40; // Max attempts to avoid an infinite loop
+        let tries = 0;
+
+        while ((easyMade < nEasy || mediumMade < nMedium || hardMade < nHard) &&
+               tries < maxTries) {
+          tries++;
+
+          const p = generator.generatePattern();
+          const d = p.difficulty || 2;
+
+          if (d === 1 && easyMade >= nEasy) continue;
+          if (d === 2 && mediumMade >= nMedium) continue;
+          if (d === 3 && hardMade >= nHard) continue;
+
+          // Prevent duplicates based on id
+          if (currentLibrary.some(x => x.id === p.id)) continue;
+
+          currentLibrary.push(p);
+          if (d === 1) easyMade++;
+          else if (d === 2) mediumMade++;
+          else if (d === 3) hardMade++;
+        }
+
+        selectedIds = new Set(currentLibrary.map((p) => p.id));
+        refreshOutputs({ skipStatus: true });
+
+        if (currentLibrary.length === 0) {
+          setStatus("هیچ محرکی ساخته نشد. تنظیم‌ها را بررسی کن.");
+          dlBtn.disabled = true;
+          applySelectionBtn.disabled = true;
+          return;
+        }
+
+        setStatus("کتابخانه ساخته شد. روی شکل‌ها کلیک کن تا انتخاب شوند، سپس اعمال انتخاب‌ها یا دانلود را بزن.");
+        dlBtn.disabled = false;
+        applySelectionBtn.disabled = false;
+
+        showPreview();
+        refreshOutputs({ skipStatus: true });
+      }
+
+function showPreview() {
+  previewArea.innerHTML = "";
+
+  currentLibrary.forEach(p => {
+    const box = document.createElement("div");
+    box.className = "preview-item";
+    const isSelected = selectedIds.has(p.id);
+    if (isSelected) box.classList.add("selected");
+
+    const canvas = document.createElement("canvas");
+    renderer.render(p, canvas, 120);
+    box.appendChild(canvas);
+
+    const meta = document.createElement("div");
+    meta.className = "preview-meta";
+    const shortId = (p.id || "").slice(0, 6);
+    meta.textContent = (p.templateName || "template") + (shortId ? " | " + shortId : "");
+    box.appendChild(meta);
+
+    const badge = document.createElement("div");
+    badge.className = "selection-badge";
+    badge.textContent = "✓";
+    if (isSelected) {
+      box.appendChild(badge);
+    }
+
+    box.addEventListener("click", () => {
+      const nowSelected = !selectedIds.has(p.id);
+      if (nowSelected) {
+        selectedIds.add(p.id);
+        box.classList.add("selected");
+        box.appendChild(badge);
+      } else {
+        selectedIds.delete(p.id);
+        box.classList.remove("selected");
+        if (badge.parentNode) badge.remove();
+      }
+      refreshOutputs();
+    });
+
+    previewArea.appendChild(box);
+  });
+}
+      function downloadJSON() {
+        if (!currentLibrary.length) {
+          setStatus("ابتدا کتابخانه را بساز.");
+          return;
+        }
+
+        const selected = getSelectedLibrary();
+        if (!selected.length) {
+          setStatus("هیچ الگویی انتخاب نشده است.");
+          return;
+        }
+
+        const fullJson = JSON.stringify(selected, null, 2);
+        const blob = new Blob([fullJson], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "prm_library.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        setStatus(`فایل prm_library.json با ${selected.length} پترن دانلود شد.`);
+      }
+
+      function applySelection() {
+        if (!currentLibrary.length) {
+          setStatus("ابتدا کتابخانه را بساز.");
+          return;
+        }
+
+        const selected = getSelectedLibrary();
+        if (!selected.length) {
+          selectedIds.clear();
+          currentLibrary = [];
+          previewArea.innerHTML = "";
+          refreshOutputs({ skipStatus: true });
+          setStatus("هیچ الگویی انتخاب نشده؛ کتابخانه خالی شد.");
+          return;
+        }
+
+        currentLibrary = selected;
+        selectedIds = new Set(selected.map((p) => p.id));
+        showPreview();
+        refreshOutputs({ skipStatus: true });
+        setStatus("فقط الگوهای انتخاب‌شده نگه داشته شد.");
+      }
+
+      genBtn.addEventListener("click", generateLibrary);
+      dlBtn.addEventListener("click", downloadJSON);
+      applySelectionBtn.addEventListener("click", applySelection);
+
+      refreshOutputs({ skipStatus: true });
+      setStatus("تنظیم تعداد پترن‌ها و سپس روی «ساخت کتابخانه» کلیک کن.");
+    })();
+  </script>
+</body>
+</html>
