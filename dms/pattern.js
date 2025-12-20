@@ -428,12 +428,17 @@ class PatternGenerator {
   this._dedupeQuadrants(samplePattern);
   this._ensureUniqueColors(samplePattern);
   const sharedSets = this._buildSharedIndexSets(baseChoices.length, sharedQuadrants, segmentCount);
+  const sharedIndexMap = sharedSets.slice();
   baseChoices.forEach((p, idx) => {
     this._ensureSharedQuadrants(p, samplePattern, sharedQuadrants, sharedSets[idx]);
     this._dedupeQuadrants(p, sharedSets[idx]);
     this._ensureUniqueColors(p, sharedSets[idx]);
   });
   this._breakGlobalUniformity(baseChoices, samplePattern);
+  baseChoices.forEach((p, idx) => {
+    if (p === samplePattern) return;
+    this._ensureUniqueColors(p, sharedIndexMap[idx]);
+  });
 
   while (baseChoices.length < nChoices) {
     const extraTemplate = this._pickTemplate([sampleTemplate.id]);
@@ -443,9 +448,14 @@ class PatternGenerator {
     this._ensureSharedQuadrants(extra, samplePattern, sharedQuadrants, sharedIdx);
     this._dedupeQuadrants(extra, sharedIdx);
     this._ensureUniqueColors(extra, sharedIdx);
+    sharedIndexMap.push(sharedIdx);
     baseChoices.push(extra);
   }
   this._breakGlobalUniformity(baseChoices, samplePattern);
+  baseChoices.forEach((p, idx) => {
+    if (p === samplePattern) return;
+    this._ensureUniqueColors(p, sharedIndexMap[idx]);
+  });
 
   const order = [...baseChoices.keys()];
   for (let i = order.length - 1; i > 0; i--) {
