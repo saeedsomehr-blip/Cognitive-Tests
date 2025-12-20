@@ -316,6 +316,36 @@ class PatternGenerator {
     });
   }
 
+  _ensureUniqueColors(pattern, protectedIndices = []) {
+    if (!Array.isArray(pattern.quadrants)) return;
+    const protectedSet = new Set(
+      Array.isArray(protectedIndices) ? protectedIndices : []
+    );
+    const usedColors = new Set();
+    pattern.quadrants.forEach((q, idx) => {
+      if (!q) return;
+      if (protectedSet.has(idx)) {
+        usedColors.add(q.color);
+      }
+    });
+    pattern.quadrants.forEach((q, idx) => {
+      if (!q) return;
+      if (protectedSet.has(idx)) return;
+      if (!usedColors.has(q.color)) {
+        usedColors.add(q.color);
+        return;
+      }
+      const alt = this.palette.find((c) => !usedColors.has(c));
+      if (alt) {
+        q.color = alt;
+        if (Array.isArray(pattern.colors)) {
+          pattern.colors[idx] = alt;
+        }
+        usedColors.add(alt);
+      }
+    });
+  }
+
   _breakGlobalUniformity(choices, samplePattern) {
     if (!Array.isArray(choices) || !choices.length) return;
     const length = Math.min(
@@ -396,10 +426,12 @@ class PatternGenerator {
   ];
 
   this._dedupeQuadrants(samplePattern);
+  this._ensureUniqueColors(samplePattern);
   const sharedSets = this._buildSharedIndexSets(baseChoices.length, sharedQuadrants, segmentCount);
   baseChoices.forEach((p, idx) => {
     this._ensureSharedQuadrants(p, samplePattern, sharedQuadrants, sharedSets[idx]);
     this._dedupeQuadrants(p, sharedSets[idx]);
+    this._ensureUniqueColors(p, sharedSets[idx]);
   });
   this._breakGlobalUniformity(baseChoices, samplePattern);
 
@@ -410,6 +442,7 @@ class PatternGenerator {
     const sharedIdx = this._buildSharedIndexSets(1, sharedQuadrants, segmentCount)[0];
     this._ensureSharedQuadrants(extra, samplePattern, sharedQuadrants, sharedIdx);
     this._dedupeQuadrants(extra, sharedIdx);
+    this._ensureUniqueColors(extra, sharedIdx);
     baseChoices.push(extra);
   }
   this._breakGlobalUniformity(baseChoices, samplePattern);
